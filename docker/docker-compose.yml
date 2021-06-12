@@ -1,0 +1,54 @@
+version: "3.1"
+services:
+
+    mysql:
+      image: mysql:8.0
+      container_name: webapp-mysql
+      working_dir: /application
+      volumes:
+        - ../www:/application
+      environment:
+        - MYSQL_ROOT_PASSWORD=password
+        - MYSQL_DATABASE=webapp
+        - MYSQL_USER=webapp_user
+        - MYSQL_PASSWORD=password
+      ports:
+        - "1027:3306"
+
+    webserver:
+      image: nginx:alpine
+      container_name: webapp-webserver
+      working_dir: /application
+      volumes:
+          - ../www:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "8080:80"
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: webapp-php-fpm
+      working_dir: /application
+      volumes:
+        - ../www:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+        - ./setup:/setup
+
+  # DB access via PHP my admin
+    phpmyadmin:
+      image: phpmyadmin
+      container_name: webapp-phpmyadmin
+      environment:
+        - PMA_ARBITRARY=1
+      restart: always
+      ports:
+        - 8181:80
+
+  #Fake SMTP server for testing emails
+    smtp4dev:
+      image: rnwood/smtp4dev
+      container_name: webapp-smtp4dev
+      restart: unless-stopped
+      ports:
+        - "1025:25"
+        - "3000:80"
