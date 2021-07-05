@@ -29,6 +29,7 @@ Use the following command to connect
 
 `> ./connect.sh`
 
+This will execute the following command for you `docker exec -it webapp-php-fpm /bin/bash`
 
 The following section provides further details on the docker methods used within each script.
 
